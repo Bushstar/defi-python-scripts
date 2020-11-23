@@ -203,7 +203,6 @@ CheckError(rawTx)
 rawTx = rawTx.stdout.decode().rstrip() # Remove new line
 
 # Create signed raw transaction
-print(redeemScript)
 signedRawtx = run(["./defi-cli","signrawtransactionwithkey", rawTx, '["' + privateKey + '"]', '[{"txid":"' + utxo['txid'] + '","vout":' + str(utxo['vout']) +
     ',"scriptPubKey":"' + multisigScriptpubkey + '","redeemScript":"' + redeemScript + '"}]'], stdout=PIPE, stderr=PIPE)
 CheckError(signedRawtx)
