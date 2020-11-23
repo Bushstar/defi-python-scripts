@@ -114,15 +114,9 @@ inputAmount = f"{inputAmount:.8f}"
 
 # Get private key
 privateKey = sys.argv[3]
-if not isinstance(privateKey, str):
-    print("private key should be a string")
-    sys.exit()
 
 # Get redeem script
 redeemScript = sys.argv[4]
-if not isinstance(redeemScript, str):
-    print("redeem script should be a string")
-    sys.exit()
 
 # Get multisig scriptPubkey
 multisigScriptpubkey = run(["./defi-cli","getaddressinfo", tokenInfo["collateralAddress"]], stdout=PIPE, stderr=PIPE)
