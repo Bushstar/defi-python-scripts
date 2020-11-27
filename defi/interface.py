@@ -19,7 +19,7 @@ def ParseJSON(metaFromArg):
     try:
         return json.loads(metaFromArg)
     except ValueError:
-        exit("Error parsing JSON:", metaFromArg)
+        exit("Error parsing JSON: " + metaFromArg)
 
 
 # Print exit message and exit program
