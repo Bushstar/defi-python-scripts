@@ -19,8 +19,12 @@ def ParseJSON(metaFromArg):
     try:
         return json.loads(metaFromArg)
     except ValueError:
-        print("Error parsing JSON:", metaFromArg)
-        sys.exit()
+        exit("Error parsing JSON:", metaFromArg)
+
+
+# Print exit message and exit program
+def exit(exit_message):
+    sys.exit(exit_message)
 
 
 # Get token ID argument
@@ -28,8 +32,7 @@ def getUserTokenID():
     try:
         tokenID = int(sys.argv[1])
     except:
-        print("tokenID must be an integer")
-        sys.exit()
+        exit("tokenID must be an integer")
 
     return changeEndianness(intToBytes(tokenID, 4)).decode()
 
@@ -39,8 +42,7 @@ def getUserAmount():
     try:
         amount = int(sys.argv[2])
     except:
-        print("amount must be an integer")
-        sys.exit()
+        exit("amount must be an integer")
 
     amount *= 100000000  # Multiply by nuber of Satoshis (COIN)
     return changeEndianness(intToBytes(amount, 8)).decode()
@@ -59,37 +61,30 @@ def getUserUTXO():
     # Parsed input should be list with one element, we only accept a single UTXO in this script
     # but keep the input argument the same as the updatetoken RPC call for consistency.
     if len(utxo) != 1:
-        print("input should be a list")
-        sys.exit()
+        exit("input should be a list")
 
     utxo = utxo[0]  # Get first element in list
 
     # Does input have correct keys?
     if not "txid" in utxo or not "vout" in utxo or not "amount" in utxo:
-        print("input argument missing keys")
-        sys.exit()
+        exit("input argument missing keys")
 
     # Are input values at least the correct type?
     if not isinstance(utxo['txid'], str):
-        print("input txid must be a string")
-        sys.exit()
+        exit("input txid must be a string")
     if not isinstance(utxo['vout'], int):
-        print("input vout must be an integer")
-        sys.exit()
+        exit("input vout must be an integer")
     if not isinstance(utxo['amount'], str):
-        print("input vout must be an string")
-        sys.exit()
+        exit("input vout must be an string")
 
     # Check input amount
     try:
         inputAmount = Decimal(utxo['amount']) - Decimal("0.0001")  # Deduct 0.0001 fee
     except:
-        print("amount value in input arg not a number")
-        sys.exit()
+        exit("amount value in input arg not a number")
 
     if inputAmount < 0:
-        print("input amount too small to cover fee")
-        sys.exit()
+        exit("input amount too small to cover fee")
 
     # Convert to Satoshis
     inputAmount = int(100000000 * inputAmount)

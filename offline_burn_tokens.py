@@ -15,16 +15,16 @@ from defi.transactions import makeSignedTransaction
 
 # Help info
 if len(sys.argv) != 5:
-    print('\nUsage: offline_burn_tokens.py tokenID amount "private key" "input"\n\n'
-          'tokenID (number): token identifier\n\n'
-          'amount (number): number of tokens to burn\n\n'
-          'private key (string): private key to sign transaction. input MUST be from this key and\n'
-          'be the owner of tokens to burn.\n\n'
-          'input (string): UTXO for the token owner address, amount to spend in UTXO, change sent\n'
-          'to private key address, 0.0001 fee.\n'
-          'input example: \'[{"txid":"TXID","vout":0,"amount":"0.00000000"}]\'\n'
-          )
-    sys.exit()
+    exit('\nUsage: offline_burn_tokens.py tokenID amount "private key" "input" "burn address"\n\n'
+         'tokenID (number): token identifier\n\n'
+         'amount (number): number of tokens to burn\n\n'
+         'private key (string): private key to sign transaction. input MUST be from this key and\n'
+         'be the owner of tokens to burn.\n\n'
+         'input (string): UTXO for the token owner address, amount to spend in UTXO, change sent\n'
+         'to private key address, 0.0001 fee.\n'
+         'input example: \'[{"txid":"TXID","vout":0,"amount":"0.00000000"}]\'\\nn'
+         'burn address: (options) Set designed burn address 8F to 8d, defaults to "8addressToBurn"\n'
+         )
 
 # Get args from user
 tokenID = getUserTokenID()
