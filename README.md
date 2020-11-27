@@ -35,6 +35,10 @@ Be careful specifying the amount, the fee will be deducted and the rest sent bac
 
 Offline script to create signed raw mint token transaction. Assists with managing tokens created with cold storage / offline addresses. The resulting transaction raw transaction printed by this script can be broadcast using the RPC call sendrawtransaction.
 
+Requires base58, ecdsa, hashlib and python_bitcoinlib, install with:
+
+`pip3 install base58 ecdsa hashlib python_bitcoinlib`
+
 Usage instructions can be viewed by running the script without any arguments.
 
 `python3 offline_mint_tokens.py`
@@ -60,6 +64,10 @@ Be careful specifying the amount, the fee will be deducted and the rest sent bac
 ### [offline_burn_tokens.py](https://github.com/Bushstar/defi-python-scripts/blob/master/offline_burn_tokens.py)
 
 Offline script to create signed raw burn token transaction. Assists with managing tokens created with cold storage / offline addresses. The resulting transaction raw transaction printed by this script can be broadcast using the RPC call sendrawtransaction.
+
+Requires base58, ecdsa, hashlib and python_bitcoinlib, install with:
+
+`pip3 install base58 ecdsa hashlib python_bitcoinlib`
 
 Usage instructions can be viewed by running the script without any arguments.
 
