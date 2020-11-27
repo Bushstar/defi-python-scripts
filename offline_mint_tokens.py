@@ -1,11 +1,18 @@
 #!/usr/bin/env python3
 # Copyright (c) DeFi Blockchain Developers
 
+'''
+Following script requires these Python packages to be installed with pip3
+or your package management software.
+
+base58, ecdsa, hashlib and python_bitcoinlib
+'''
+
 import json, sys
 from decimal import Decimal
 
-# Include txhelper.py, has module deps, check file for details.
-from txhelper import changeEndianness, intToBytes, makeSignedTransaction
+# defi directory must be included
+from defi.transactions import changeEndianness, intToBytes, makeSignedTransaction
 
 # Help info
 if len(sys.argv) != 5:
