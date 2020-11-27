@@ -75,7 +75,7 @@ def getUserUTXO():
     if not isinstance(utxo['vout'], int):
         exit("input vout must be an integer")
     if not isinstance(utxo['amount'], str):
-        exit("input vout must be an string")
+        exit("input amount must be an string")
 
     # Check input amount
     try:

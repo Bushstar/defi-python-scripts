@@ -2,18 +2,43 @@
 
 from base58 import b58decode, b58encode
 from binascii import hexlify, unhexlify
-from ecdsa import SigningKey, VerifyingKey, SECP256k1
+from ecdsa import SigningKey, SECP256k1
 from ecdsa.util import number_to_string
 from hashlib import sha256, new
 
 import defi.transactions
 
+__unusedChars = '0OIl'
 
-def checksum(v):
-    return sha256(sha256(v).digest()).digest()[0:4]
+
+def check_start_range(fst2):
+    if '8F' <= fst2 <= '8d':
+        return True
+
+    return False
 
 
 def getBurnAddress(burnAddress):
+    if not burnAddress:
+        burnAddress = "8addressToBurn"
+
+    if len(burnAddress) < 2:
+        exit("Burn address too short")
+
+    if len(burnAddress) > 28:
+        exit('Burn address to long, 28 chars max')
+
+    if not burnAddress.isalnum():
+        exit('Burn address start string contains invalid characters')
+
+    if any((c in burnAddress) for c in __unusedChars):
+        exit('Burn address start string cannot contain 0, O, I or l')
+
+    fst2 = burnAddress[0:2]
+    if not check_start_range(fst2):
+        exit('Address start is not correct\n'
+             'Address start with string from 8F ~ 8d')
+
     burnAddress = burnAddress + "X" * (34 - len(burnAddress))
     result = b58decode(burnAddress)
     checksumResult = checksum(result[:-4])
@@ -25,6 +50,10 @@ def getBurnAddress(burnAddress):
     mutableResult[-1] = checksumResult[3]
 
     return b58encode(mutableResult).decode()
+
+
+def checksum(v):
+    return sha256(sha256(v).digest()).digest()[0:4]
 
 
 def wifToPrivateKey(s):

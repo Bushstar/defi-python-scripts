@@ -14,7 +14,7 @@ from defi.interface import *
 from defi.transactions import makeSignedTransaction
 
 # Help info
-if len(sys.argv) != 5:
+if len(sys.argv) < 5 or len(sys.argv) > 6:
     exit('\nUsage: offline_burn_tokens.py tokenID amount "private key" "input" "burn address"\n\n'
          'tokenID (number): token identifier\n\n'
          'amount (number): number of tokens to burn\n\n'
@@ -33,11 +33,15 @@ privateKey = getUserPrivKey()
 txid, vout, inputAmount = getUserUTXO()
 
 # Get burn address
-burnAddress = getBurnAddress("8addressToBurn")
+if len(sys.argv) == 6:
+    burnAddress = getBurnAddress(sys.argv[5])
+else:
+    burnAddress = getBurnAddress("")
 
 # Create burn tokens payload
 outputTokenPayload = "496a47446654784219" + getScriptKeyFromPriv(privateKey) + "0119" + \
                      getScriptPubKeyFromAddr(burnAddress) + "01" + tokenID + amount
 
-# Create and print signed raw transaction
+# Print generated burn address and create and print signed raw transaction
+print("Burn Address:", burnAddress)
 print("Signed TX:", makeSignedTransaction(privateKey, txid, vout, inputAmount, outputTokenPayload))
