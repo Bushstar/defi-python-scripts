@@ -160,10 +160,10 @@ if "mintable" in metadata:
 else:
     mintable = tokenInfo['mintable']
 
-if "tradeable" in metadata:
-    tradeable = metadata['tradeable']
+if "tradable" in metadata:
+    tradable = metadata['tradable']
 else:
-    tradeable = tokenInfo['tradeable']
+    tradable = tokenInfo['tradable']
 
 if "isDAT" in metadata:
     isDAT = metadata['isDAT']
@@ -181,7 +181,7 @@ flag = 0
 if mintable:
     flag |= 0x01
 
-if tradeable:
+if tradable:
     flag |= 0x02
 
 if isDAT:
