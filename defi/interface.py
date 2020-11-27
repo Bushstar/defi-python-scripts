@@ -7,7 +7,8 @@ or your package management software.
 base58, ecdsa, hashlib and python_bitcoinlib
 '''
 
-import json, sys
+import json
+import sys
 from decimal import Decimal
 
 # defi directory must be included
@@ -15,78 +16,78 @@ from defi.transactions import *
 
 
 # Parse JSON from client
-def ParseJSON(metaFromArg):
+def parse_json(meta):
     try:
-        return json.loads(metaFromArg)
+        return json.loads(meta)
     except ValueError:
-        exit("Error parsing JSON: " + metaFromArg)
+        print_and_exit("Error parsing JSON: " + meta)
 
 
 # Print exit message and exit program
-def exit(exit_message):
+def print_and_exit(exit_message):
     sys.exit(exit_message)
 
 
 # Get token ID argument
-def getUserTokenID():
+def user_token_id():
     try:
-        tokenID = int(sys.argv[1])
-    except:
-        exit("tokenID must be an integer")
+        token_id = int(sys.argv[1])
+    except ValueError:
+        print_and_exit("tokenID must be an integer")
 
-    return changeEndianness(intToBytes(tokenID, 4)).decode()
+    return change_endianness(int_to_bytes(token_id, 4)).decode()
 
 
 # Get the amount of tokens
-def getUserAmount():
+def user_amount():
     try:
         amount = int(sys.argv[2])
-    except:
-        exit("amount must be an integer")
+    except ValueError:
+        print_and_exit("amount must be an integer")
 
     amount *= 100000000  # Multiply by nuber of Satoshis (COIN)
-    return changeEndianness(intToBytes(amount, 8)).decode()
+    return change_endianness(int_to_bytes(amount, 8)).decode()
 
 
 # Get private key
-def getUserPrivKey():
+def user_private_key():
     return sys.argv[3]
 
 
 # Get input UTXO
-def getUserUTXO():
+def user_utxo():
     # Get input
-    utxo = ParseJSON(sys.argv[4])
+    utxo = parse_json(sys.argv[4])
 
     # Parsed input should be list with one element, we only accept a single UTXO in this script
     # but keep the input argument the same as the updatetoken RPC call for consistency.
     if len(utxo) != 1:
-        exit("input should be a list")
+        print_and_exit("input should be a list")
 
     utxo = utxo[0]  # Get first element in list
 
     # Does input have correct keys?
-    if not "txid" in utxo or not "vout" in utxo or not "amount" in utxo:
-        exit("input argument missing keys")
+    if "txid" not in utxo or "vout" not in utxo or "amount" not in utxo:
+        print_and_exit("input argument missing keys")
 
     # Are input values at least the correct type?
     if not isinstance(utxo['txid'], str):
-        exit("input txid must be a string")
+        print_and_exit("input txid must be a string")
     if not isinstance(utxo['vout'], int):
-        exit("input vout must be an integer")
+        print_and_exit("input vout must be an integer")
     if not isinstance(utxo['amount'], str):
-        exit("input amount must be an string")
+        print_and_exit("input amount must be an string")
 
     # Check input amount
     try:
-        inputAmount = Decimal(utxo['amount']) - Decimal("0.0001")  # Deduct 0.0001 fee
-    except:
-        exit("amount value in input arg not a number")
+        input_amount = Decimal(utxo['amount']) - Decimal("0.0001")  # Deduct 0.0001 fee
+    except ValueError:
+        print_and_exit("amount value in input arg not a number")
 
-    if inputAmount < 0:
-        exit("input amount too small to cover fee")
+    if input_amount < 0:
+        print_and_exit("input amount too small to cover fee")
 
     # Convert to Satoshis
-    inputAmount = int(100000000 * inputAmount)
+    input_amount = int(100000000 * input_amount)
 
-    return utxo['txid'], utxo['vout'], inputAmount
+    return utxo['txid'], utxo['vout'], input_amount

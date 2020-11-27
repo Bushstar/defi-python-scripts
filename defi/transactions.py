@@ -9,7 +9,7 @@ from hashlib import sha256
 import defi.addressutils
 
 
-def changeEndianness(x):
+def change_endianness(x):
     if (len(x) % 2) == 1:
         x += "0"
     y = unhexlify(x)
@@ -17,15 +17,15 @@ def changeEndianness(x):
     return hexlify(z)
 
 
-def intToBytes(a, b):
+def int_to_bytes(a, b):
     m = pow(2, 8 * b) - 1
     return ('%0' + str(2 * b) + 'x') % int(a)
 
 
-def encodeVarint(value):
+def encode_varint(value):
     if value < pow(2, 8) - 3:
         size = 1
-        varint = intToBytes(value, size)
+        varint = int_to_bytes(value, size)
     else:
         if value < pow(2, 16):
             size = 2
@@ -38,7 +38,7 @@ def encodeVarint(value):
             prefix = 255  # 0xFF
         else:
             raise Exception("Wrong input data size")
-        varint = format(prefix, 'x') + changeEndianness(intToBytes(value, size))
+        varint = format(prefix, 'x') + change_endianness(int_to_bytes(value, size)).decode()
 
     return varint
 
@@ -82,43 +82,43 @@ class OutputScript(BaseScript):
     @classmethod
     def P2PKH(cls, data):
         script = cls()
-        h160 = defi.addressutils.hash160FromAddr(data)
+        h160 = defi.addressutils.hash160_from_address(data)
         script.content = script.serialize("OP_DUP OP_HASH160 <" + h160.decode() + "> OP_EQUALVERIFY OP_CHECKSIG")
 
         return script
 
 
-def makeRawTransaction(outputTransactionHash, sourceIndex, scriptSig, inputAmount, outputTokenPayload, scriptpubkey):
-    return "0400000001" + changeEndianness(outputTransactionHash).decode() + changeEndianness(intToBytes(sourceIndex, 4)).decode() + \
-           encodeVarint(len(scriptSig.content) / 2) + scriptSig.content + "ffffffff020000000000000000" + outputTokenPayload + \
-           "00" + changeEndianness(intToBytes(inputAmount, 8)).decode() + encodeVarint(len(scriptpubkey.content) / 2) + \
+def make_raw_transaction(txid, index, scriptsig, amount, payload, scriptpubkey):
+    return "0400000001" + change_endianness(txid).decode() + change_endianness(int_to_bytes(index, 4)).decode() + \
+           encode_varint(len(scriptsig.content) / 2) + scriptsig.content + "ffffffff020000000000000000" + payload + \
+           "00" + change_endianness(int_to_bytes(amount, 8)).decode() + encode_varint(len(scriptpubkey.content) / 2) + \
            scriptpubkey.content + "0000000000"
 
 
-def makeSignedTransaction(privateKey, outputTransactionHash, sourceIndex, inputAmount, outputTokenPayload):
+def make_signed_transaction(privatekey, txid, index, amount, payload):
     # Get various keys
-    sk = defi.addressutils.getSigningKey(privateKey)
+    sk = defi.addressutils.signing_key(privatekey)
     vk = sk.get_verifying_key()
-    pk = defi.addressutils.privateKeyToPublicKey(vk)
-    scriptPK = OutputScript.P2PKH(defi.addressutils.getP2PKHFromPriv(pk))
+    pk = defi.addressutils.private_to_public_key(vk)
+    scriptpubkey = OutputScript.P2PKH(defi.addressutils.p2pkh_from_private(pk))
 
     # Generate unsigned TX
-    unsigned_tx = makeRawTransaction(outputTransactionHash, sourceIndex, scriptPK, inputAmount, outputTokenPayload, scriptPK)
+    unsigned_tx = make_raw_transaction(txid, index, scriptpubkey, amount, payload, scriptpubkey)
 
     # SIGHASH_ALL
-    hc = intToBytes(1, 4)
+    hc = int_to_bytes(1, 4)
 
     # Hash
-    h = sha256(unhexlify(unsigned_tx + changeEndianness(hc).decode())).digest()
+    h = sha256(unhexlify(unsigned_tx + change_endianness(hc).decode())).digest()
 
     # Sign
     s = sk.sign_deterministic(h, hashfunc=sha256, sigencode=sigencode_der_canonize)
     s = hexlify(s) + hc[-2:].encode()  # SIGHASH_ALL
 
     # Generate scriptsig
-    scriptSig = InputScript.P2PKH(s, pk)
+    scriptsig = InputScript.P2PKH(s, pk)
 
     # Make final TX
-    signed_txn = makeRawTransaction(outputTransactionHash, sourceIndex, scriptSig, inputAmount, outputTokenPayload, scriptPK)
+    signed_txn = make_raw_transaction(txid, index, scriptsig, amount, payload, scriptpubkey)
 
     return signed_txn

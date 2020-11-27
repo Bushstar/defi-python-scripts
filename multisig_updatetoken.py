@@ -16,11 +16,11 @@ def check_error(res):
 
 
 # Parse JSON from client
-def parse_json(metaFromArg):
+def parse_json(meta):
     try:
-        return json.loads(metaFromArg)
+        return json.loads(meta)
     except ValueError:
-        sys.exit("Error parsing JSON:" + metaFromArg)
+        sys.exit("Error parsing JSON:" + meta)
 
 
 # Requires defi-cli to be present and working
@@ -71,7 +71,7 @@ if not isinstance(utxo['amount'], str):
 # Check input amount
 try:
     inputAmount = Decimal(utxo['amount']) - Decimal("0.0001")  # Deduct 0.0001 fee
-except:
+except ValueError:
     sys.exit("amount value in input arg not a number")
 
 if inputAmount < 0:
