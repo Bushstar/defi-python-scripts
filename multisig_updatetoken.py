@@ -23,10 +23,6 @@ def parse_json(meta):
         sys.exit("Error parsing JSON:" + meta)
 
 
-# Requires defi-cli to be present and working
-if not os.path.isfile("defi-cli"):
-    raise FileNotFoundError(errno.ENOENT, os.strerror(errno.ENOENT), "defi-cli")
-
 # Help info
 if len(sys.argv) != 6:
     sys.exit('\nUsage: multisig_updatetoken.py tokenID "metadata" "private key" "redeem script" "input"\n\n'
@@ -37,6 +33,10 @@ if len(sys.argv) != 6:
              'redeem script (string): multisig redeen script\n\n'
              'input (string): UTXO for the multisig address, amount to spend in UTXO, change sent to multisig address, 0.0001 fee\n'
              'input example: \'[{"txid":"TXID","vout":0,"amount":"0.00000000"}]\'\n')
+
+# Requires defi-cli to be present and working
+if not os.path.isfile("defi-cli"):
+    raise FileNotFoundError(errno.ENOENT, os.strerror(errno.ENOENT), "defi-cli")
 
 # Get token info from client
 result = run(["./defi-cli", "gettoken", sys.argv[1]], stdout=PIPE, stderr=PIPE)
