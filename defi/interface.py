@@ -1,8 +1,5 @@
 # Copyright (c) DeFi Blockchain Developers
 
-#!/usr/bin/env python3
-# Copyright (c) DeFi Blockchain Developers
-
 '''
 Following script requires these Python packages to be installed with pip3
 or your package management software.
@@ -14,8 +11,8 @@ import json, sys
 from decimal import Decimal
 
 # defi directory must be included
-from defi.addressutils import *
 from defi.transactions import *
+
 
 # Parse JSON from client
 def ParseJSON(metaFromArg):
@@ -24,6 +21,7 @@ def ParseJSON(metaFromArg):
     except ValueError:
         print("Error parsing JSON:", metaFromArg)
         sys.exit()
+
 
 # Get token ID argument
 def getUserTokenID():
@@ -35,6 +33,7 @@ def getUserTokenID():
 
     return changeEndianness(intToBytes(tokenID, 4)).decode()
 
+
 # Get the amount of tokens
 def getUserAmount():
     try:
@@ -43,12 +42,14 @@ def getUserAmount():
         print("amount must be an integer")
         sys.exit()
 
-    amount *= 100000000 # Multiply by nuber of Satoshis (COIN)
+    amount *= 100000000  # Multiply by nuber of Satoshis (COIN)
     return changeEndianness(intToBytes(amount, 8)).decode()
+
 
 # Get private key
 def getUserPrivKey():
     return sys.argv[3]
+
 
 # Get input UTXO
 def getUserUTXO():
@@ -61,7 +62,7 @@ def getUserUTXO():
         print("input should be a list")
         sys.exit()
 
-    utxo = utxo[0] # Get first element in list
+    utxo = utxo[0]  # Get first element in list
 
     # Does input have correct keys?
     if not "txid" in utxo or not "vout" in utxo or not "amount" in utxo:
@@ -81,7 +82,7 @@ def getUserUTXO():
 
     # Check input amount
     try:
-        inputAmount = Decimal(utxo['amount']) - Decimal("0.0001") # Deduct 0.0001 fee
+        inputAmount = Decimal(utxo['amount']) - Decimal("0.0001")  # Deduct 0.0001 fee
     except:
         print("amount value in input arg not a number")
         sys.exit()

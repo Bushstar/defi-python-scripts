@@ -8,8 +8,10 @@ from hashlib import sha256, new
 
 import defi.transactions
 
+
 def checksum(v):
     return sha256(sha256(v).digest()).digest()[0:4]
+
 
 def getBurnAddress(burnAddress):
     burnAddress = burnAddress + "X" * (34 - len(burnAddress))
@@ -24,9 +26,11 @@ def getBurnAddress(burnAddress):
 
     return b58encode(mutableResult).decode()
 
+
 def wifToPrivateKey(s):
     b = b58decode(s)
     return hexlify(b).decode()[2:-10]
+
 
 def privateKeyToPublicKey(pk):
     x_str = number_to_string(pk.pubkey.point.x(), pk.pubkey.order)
@@ -37,6 +41,7 @@ def privateKeyToPublicKey(pk):
     s_key = prefix + hexlify(x_str).decode()
     return s_key
 
+
 def getP2PKHFromPriv(pk):
     h160 = hash160(pk)
     vh160 = chr(111).encode() + h160
@@ -46,11 +51,14 @@ def getP2PKHFromPriv(pk):
 
     return addr
 
+
 def getSigningKey(privateKey):
     return SigningKey.from_string(unhexlify(wifToPrivateKey(privateKey)), curve=SECP256k1)
 
+
 def getScriptPubKeyFromAddr(addr):
     return defi.transactions.OutputScript.P2PKH(addr).content
+
 
 def getScriptKeyFromPriv(privateKey):
     sk = getSigningKey(privateKey)
@@ -59,12 +67,14 @@ def getScriptKeyFromPriv(privateKey):
 
     return getScriptPubKeyFromAddr(getP2PKHFromPriv(pk))
 
+
 def hash160FromAddr(addr):
     decoded_addr = b58decode(addr)
     decoded_addr_hex = hexlify(decoded_addr)
     h160 = decoded_addr_hex[2:-8]
 
     return h160
+
 
 def hash160(data):
     md = new('ripemd160')

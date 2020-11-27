@@ -8,9 +8,6 @@ or your package management software.
 base58, ecdsa, hashlib and python_bitcoinlib
 '''
 
-import json, sys
-from decimal import Decimal
-
 # defi directory must be included
 from defi.interface import *
 from defi.transactions import makeSignedTransaction
@@ -18,15 +15,16 @@ from defi.transactions import makeSignedTransaction
 # Help info
 if len(sys.argv) != 5:
     print('\nUsage: offline_mint_tokens.py tokenID amount "private key" "input"\n\n'
-        'tokenID (number): token identifier\n\n'
-        'amount (number): number of tokens to create\n\n'
-        'private key (string): private key to sign transaction. Input MUST be from this key and\n'
-        'be the owner of the token we are minting tokens for.\n\n'
-        'intput (string): UTXO for the collateral address, amount to spend in UTXO, change sent\n'
-        'to private key address, 0.0001 fee.\n'
-        'intput example: \'[{"txid":"TXID","vout":0,"amount":"0.00000000"}]\'\n'
-        )
+          'tokenID (number): token identifier\n\n'
+          'amount (number): number of tokens to create\n\n'
+          'private key (string): private key to sign transaction. Input MUST be from this key and\n'
+          'be the owner of the token we are minting tokens for.\n\n'
+          'input (string): UTXO for the collateral address, amount to spend in UTXO, change sent\n'
+          'to private key address, 0.0001 fee.\n'
+          'input example: \'[{"txid":"TXID","vout":0,"amount":"0.00000000"}]\'\n'
+          )
     sys.exit()
+
 # Get args from user
 tokenID = getUserTokenID()
 amount = getUserAmount()

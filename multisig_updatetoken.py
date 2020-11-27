@@ -29,15 +29,17 @@ With real values it looked like the following.
 ./multisig_updatetoken.py 130 '{"symbol":"NOOT2","name":"Noot2"}' "cRnkms5jMXYbEgHCpVZm3P98UxDXnnhWVsyjRW8rSyZkSE24gAhC" "512103e21490f4ef0f1eb20d08bc9caf8a574279ac742a9f3693e6e92dfb51f35a39fa21025d35c5555443747756b233c1c4eaaddff048c5bfc9218cb1de5ce54f4b26040552ae" '[{"txid":"28b2c5b665787c04964df131ecda9f955dc9fbd8f7aae155f680db1e9e3d1c9e","vout":1,"amount":"1"}]'
 '''
 
-import binascii, errno, json, os, sys
+import errno, json, os, sys
 from decimal import Decimal
 from subprocess import PIPE, run
+
 
 # Check for errors from running defi-cli commands
 def CheckError(result):
     if result.returncode == 1 or len(result.stderr) > 0:
         print(result.stderr.decode().rstrip())
         sys.exit()
+
 
 # Parse JSON from client
 def ParseJSON(metaFromArg):
@@ -46,6 +48,7 @@ def ParseJSON(metaFromArg):
     except ValueError:
         print("Error parsing JSON:", metaFromArg)
         sys.exit()
+
 
 # Requires defi-cli to be present and working
 if not os.path.isfile("defi-cli"):
@@ -59,13 +62,13 @@ if len(sys.argv) != 6:
         'metadata example: \'{"name":"NAME","symbol":"SYM","isDAT":false,"mintable":true,"tradable":true,"finalize":false}\'\n\n'
         'private key (string): private key to sign transaction\n\n'
         'redeem script (string): multisig redeen script\n\n'
-        'intput (string): UTXO for the multisig address, amount to spend in UTXO, change sent to multisig address, 0.0001 fee\n'
-        'intput example: \'[{"txid":"TXID","vout":0,"amount":"0.00000000"}]\'\n'
+        'input (string): UTXO for the multisig address, amount to spend in UTXO, change sent to multisig address, 0.0001 fee\n'
+        'input example: \'[{"txid":"TXID","vout":0,"amount":"0.00000000"}]\'\n'
         )
     sys.exit()
 
 # Get token info from client
-result = run(["./defi-cli","gettoken",sys.argv[1]], stdout=PIPE, stderr=PIPE)
+result = run(["./defi-cli", "gettoken", sys.argv[1]], stdout=PIPE, stderr=PIPE)
 CheckError(result)
 tokenInfo = json.loads(result.stdout)[sys.argv[1]]
 
@@ -81,7 +84,7 @@ if len(utxo) != 1:
     print("input should be a list")
     sys.exit()
 
-utxo = utxo[0] # Get first element in list
+utxo = utxo[0]  # Get first element in list
 
 # Does input have correct keys?
 if not "txid" in utxo or not "vout" in utxo or not "amount" in utxo:
@@ -101,7 +104,7 @@ if not isinstance(utxo['amount'], str):
 
 # Check input amount
 try:
-    inputAmount = Decimal(utxo['amount']) - Decimal("0.0001") # Deduct 0.0001 fee
+    inputAmount = Decimal(utxo['amount']) - Decimal("0.0001")  # Deduct 0.0001 fee
 except:
     print("amount value in input arg not a number")
     sys.exit()
@@ -119,17 +122,17 @@ privateKey = sys.argv[3]
 redeemScript = sys.argv[4]
 
 # Get multisig scriptPubkey
-multisigScriptpubkey = run(["./defi-cli","getaddressinfo", tokenInfo["collateralAddress"]], stdout=PIPE, stderr=PIPE)
+multisigScriptpubkey = run(["./defi-cli", "getaddressinfo", tokenInfo["collateralAddress"]], stdout=PIPE, stderr=PIPE)
 CheckError(multisigScriptpubkey)
 multisigScriptpubkey = json.loads(multisigScriptpubkey.stdout)['scriptPubKey']
 
 # Create payload data for OP_RETURN data output
-creationTxReversed = "".join(reversed([tokenInfo['creationTx'][i:i+2] for i in range(0, len(tokenInfo['creationTx']), 2)]))
+creationTxReversed = "".join(reversed([tokenInfo['creationTx'][i:i + 2] for i in range(0, len(tokenInfo['creationTx']), 2)]))
 updateTokenPayload = "446654786e" + creationTxReversed
 
 # Add token symbol
 if "symbol" in metadata:
-    symbol = metadata["symbol"].strip()[0:8] # 8 max symbol length
+    symbol = metadata["symbol"].strip()[0:8]  # 8 max symbol length
     updateTokenPayload += f"{len(symbol):02x}"
     updateTokenPayload += symbol.encode().hex()
 else:
@@ -138,7 +141,7 @@ else:
 
 # Add token name
 if "name" in metadata:
-    name = metadata["name"].strip()[0:128] # 128 max symbol length
+    name = metadata["name"].strip()[0:128]  # 128 max symbol length
     updateTokenPayload += f"{len(name):02x}"
     updateTokenPayload += name.encode().hex()
 else:
@@ -168,7 +171,7 @@ else:
     isDAT = tokenInfo['isDAT']
 
 if "finalize" in metadata:
-    finalize =  metadata['finalize']
+    finalize = metadata['finalize']
 else:
     finalize = tokenInfo['finalized']
 
@@ -191,19 +194,19 @@ if finalize:
 updateTokenPayload += f"{flag:02x}"
 
 # Create raw transaction
-rawTx = run(["./defi-cli","createrawtransaction",'[{"txid":"' + utxo['txid'] + '","vout":' + str(utxo['vout']) + '}]',
-    '[{"data":"' + updateTokenPayload + '"},{"' + tokenInfo["collateralAddress"] + '":' + inputAmount + '}]'], stdout=PIPE, stderr=PIPE)
+rawTx = run(["./defi-cli", "createrawtransaction", '[{"txid":"' + utxo['txid'] + '","vout":' + str(utxo['vout']) + '}]',
+             '[{"data":"' + updateTokenPayload + '"},{"' + tokenInfo["collateralAddress"] + '":' + inputAmount + '}]'], stdout=PIPE, stderr=PIPE)
 CheckError(rawTx)
-rawTx = rawTx.stdout.decode().rstrip() # Remove new line
+rawTx = rawTx.stdout.decode().rstrip()  # Remove new line
 
 # Create signed raw transaction
-signedRawtx = run(["./defi-cli","signrawtransactionwithkey", rawTx, '["' + privateKey + '"]', '[{"txid":"' + utxo['txid'] + '","vout":' + str(utxo['vout']) +
-    ',"scriptPubKey":"' + multisigScriptpubkey + '","redeemScript":"' + redeemScript + '"}]'], stdout=PIPE, stderr=PIPE)
+signedRawtx = run(["./defi-cli", "signrawtransactionwithkey", rawTx, '["' + privateKey + '"]', '[{"txid":"' + utxo['txid'] + '","vout":' + str(utxo['vout']) +
+                   ',"scriptPubKey":"' + multisigScriptpubkey + '","redeemScript":"' + redeemScript + '"}]'], stdout=PIPE, stderr=PIPE)
 CheckError(signedRawtx)
 signedRawtx = json.loads(signedRawtx.stdout)['hex']
 
 # Send raw transaction
-sendResult = run(["./defi-cli","sendrawtransaction", signedRawtx], stdout=PIPE, stderr=PIPE)
+sendResult = run(["./defi-cli", "sendrawtransaction", signedRawtx], stdout=PIPE, stderr=PIPE)
 CheckError(sendResult)
 
 print(sendResult.stdout.decode().rstrip())

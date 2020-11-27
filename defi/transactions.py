@@ -8,6 +8,7 @@ from hashlib import sha256
 
 import defi.addressutils
 
+
 def changeEndianness(x):
     if (len(x) % 2) == 1:
         x += "0"
@@ -15,9 +16,11 @@ def changeEndianness(x):
     z = y[::-1]
     return hexlify(z)
 
+
 def intToBytes(a, b):
-    m = pow(2, 8*b) - 1
+    m = pow(2, 8 * b) - 1
     return ('%0' + str(2 * b) + 'x') % int(a)
+
 
 def encodeVarint(value):
     if value < pow(2, 8) - 3:
@@ -38,6 +41,7 @@ def encodeVarint(value):
         varint = format(prefix, 'x') + changeEndianness(intToBytes(value, size))
 
     return varint
+
 
 class BaseScript:
     __metaclass__ = ABCMeta
@@ -62,6 +66,7 @@ class BaseScript:
     def P2PKH(self):
         pass
 
+
 class InputScript(BaseScript):
 
     @classmethod
@@ -70,6 +75,7 @@ class InputScript(BaseScript):
         script.content = script.serialize("<" + sig.decode() + "> <" + pk + ">")
 
         return script
+
 
 class OutputScript(BaseScript):
 
@@ -81,11 +87,13 @@ class OutputScript(BaseScript):
 
         return script
 
+
 def makeRawTransaction(outputTransactionHash, sourceIndex, scriptSig, inputAmount, outputTokenPayload, scriptpubkey):
     return "0400000001" + changeEndianness(outputTransactionHash).decode() + changeEndianness(intToBytes(sourceIndex, 4)).decode() + \
-            encodeVarint(len(scriptSig.content) / 2) + scriptSig.content + "ffffffff020000000000000000" + outputTokenPayload + \
-            "00" + changeEndianness(intToBytes(inputAmount, 8)).decode() + encodeVarint(len(scriptpubkey.content) / 2) + \
-            scriptpubkey.content + "0000000000"
+           encodeVarint(len(scriptSig.content) / 2) + scriptSig.content + "ffffffff020000000000000000" + outputTokenPayload + \
+           "00" + changeEndianness(intToBytes(inputAmount, 8)).decode() + encodeVarint(len(scriptpubkey.content) / 2) + \
+           scriptpubkey.content + "0000000000"
+
 
 def makeSignedTransaction(privateKey, outputTransactionHash, sourceIndex, inputAmount, outputTokenPayload):
     # Get various keys
@@ -97,7 +105,7 @@ def makeSignedTransaction(privateKey, outputTransactionHash, sourceIndex, inputA
     # Generate unsigned TX
     unsigned_tx = makeRawTransaction(outputTransactionHash, sourceIndex, scriptPK, inputAmount, outputTokenPayload, scriptPK)
 
-     # SIGHASH_ALL
+    # SIGHASH_ALL
     hc = intToBytes(1, 4)
 
     # Hash
@@ -105,7 +113,7 @@ def makeSignedTransaction(privateKey, outputTransactionHash, sourceIndex, inputA
 
     # Sign
     s = sk.sign_deterministic(h, hashfunc=sha256, sigencode=sigencode_der_canonize)
-    s = hexlify(s) + hc[-2:].encode() # SIGHASH_ALL
+    s = hexlify(s) + hc[-2:].encode()  # SIGHASH_ALL
 
     # Generate scriptsig
     scriptSig = InputScript.P2PKH(s, pk)
