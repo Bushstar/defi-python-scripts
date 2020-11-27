@@ -28,7 +28,7 @@ if len(sys.argv) != 6:
     sys.exit('\nUsage: multisig_updatetoken.py tokenID "metadata" "private key" "redeem script" "input"\n\n'
              'token (number): token identifier\n\n'
              'metadata (string): one or more values to change\n'
-             'metadata example: \'{"name":"NAME","symbol":"SYM","isDAT":false,"mintable":true,"tradable":true,"finalize":false}\'\n\n'
+             'metadata example: \'{"name":"NAME","symbol":"SYM","isDAT":false,"mintable":true,"tradeable":true,"finalize":false}\'\n\n'
              'private key (string): private key to sign transaction\n\n'
              'redeem script (string): multisig redeen script\n\n'
              'input (string): UTXO for the multisig address, amount to spend in UTXO, change sent to multisig address, 0.0001 fee\n'
@@ -125,9 +125,9 @@ else:
     mintable = tokenInfo['mintable']
 
 if "tradable" in metadata:
-    tradable = metadata['tradable']
+    tradable = metadata['tradeable']
 else:
-    tradable = tokenInfo['tradable']
+    tradable = tokenInfo['tradeable']
 
 if "isDAT" in metadata:
     isDAT = metadata['isDAT']

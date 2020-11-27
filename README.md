@@ -16,7 +16,7 @@ Token identifier.
 
 **metadata** (string)
 One or more of the token details to be updated, for example.
-`'{"name":"NAME","symbol":"SYM","isDAT":false,"mintable":true,"tradable":true,"finalize":false}'`
+`'{"name":"NAME","symbol":"SYM","isDAT":false,"mintable":true,"tradeable":true,"finalize":false}'`
 
 **private key** (string)
 Private key that corresponds to one of the public keys in the multisig, used to sign the raw transaction to authorize spending from the mutltisig.
