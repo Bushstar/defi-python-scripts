@@ -71,30 +71,20 @@ def private_to_public_key(pk):
     return s_key
 
 
-def p2pkh_from_private(pk):
-    h160 = hash160(pk)
-    vh160 = chr(111).encode() + h160
-    h = sha256(sha256(vh160).digest()).digest()
-    addr = vh160 + h[0:4]
-    addr = b58encode(addr)
-
-    return addr
-
-
 def signing_key(privateKey):
     return SigningKey.from_string(unhexlify(wif_to_private_key(privateKey)), curve=SECP256k1)
 
 
 def scriptpubkey_from_address(addr):
-    return defi.transactions.OutputScript.P2PKH(addr).content
+    return defi.transactions.OutputScript.P2PKH(hash160_from_address(addr).decode()).content
 
 
-def getScriptKeyFromPriv(privateKey):
+def scriptkey_from_private(privateKey):
     sk = signing_key(privateKey)
     vk = sk.get_verifying_key()
     pk = private_to_public_key(vk)
 
-    return scriptpubkey_from_address(p2pkh_from_private(pk))
+    return defi.transactions.OutputScript.P2PKH(hash160_public(pk)).content
 
 
 def hash160_from_address(addr):
@@ -103,6 +93,12 @@ def hash160_from_address(addr):
     h160 = decoded_addr_hex[2:-8]
 
     return h160
+
+
+def hash160_public(pk):
+    h160 = hash160(pk)
+
+    return hexlify(h160).decode('utf-8')
 
 
 def hash160(data):

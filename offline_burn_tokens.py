@@ -38,7 +38,7 @@ else:
     burnAddress = get_burn_address("")
 
 # Create burn tokens payload
-outputTokenPayload = "496a47446654784219" + getScriptKeyFromPriv(privateKey) + "0119" + \
+outputTokenPayload = "496a47446654784219" + scriptkey_from_private(privateKey) + "0119" + \
                      scriptpubkey_from_address(burnAddress) + "01" + tokenID + amount
 
 # Print generated burn address and create and print signed raw transaction

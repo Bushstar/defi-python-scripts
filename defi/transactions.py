@@ -82,8 +82,7 @@ class OutputScript(BaseScript):
     @classmethod
     def P2PKH(cls, data):
         script = cls()
-        h160 = defi.addressutils.hash160_from_address(data)
-        script.content = script.serialize("OP_DUP OP_HASH160 <" + h160.decode() + "> OP_EQUALVERIFY OP_CHECKSIG")
+        script.content = script.serialize("OP_DUP OP_HASH160 <" + data + "> OP_EQUALVERIFY OP_CHECKSIG")
 
         return script
 
@@ -100,7 +99,11 @@ def make_signed_transaction(privatekey, txid, index, amount, payload):
     sk = defi.addressutils.signing_key(privatekey)
     vk = sk.get_verifying_key()
     pk = defi.addressutils.private_to_public_key(vk)
-    scriptpubkey = OutputScript.P2PKH(defi.addressutils.p2pkh_from_private(pk))
+
+    pubkey_hash160 = defi.addressutils.hash160_public(pk)
+
+    scriptpubkey = OutputScript.P2PKH(pubkey_hash160)
+    scriptsig = scriptpubkey
 
     # Generate unsigned TX
     unsigned_tx = make_raw_transaction(txid, index, scriptpubkey, amount, payload, scriptpubkey)
