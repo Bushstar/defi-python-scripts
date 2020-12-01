@@ -80,14 +80,18 @@ def user_utxo():
 
     # Check input amount
     try:
-        input_amount = Decimal(utxo['amount']) - Decimal("0.0001")  # Deduct 0.0001 fee
+        input_amount = Decimal(utxo['amount'])
     except ValueError:
         print_and_exit("amount value in input arg not a number")
 
-    if input_amount < 0:
+    if input_amount - Decimal("0.0001") < 0:
         print_and_exit("input amount too small to cover fee")
 
     # Convert to Satoshis
     input_amount = int(100000000 * input_amount)
 
-    return utxo['txid'], utxo['vout'], input_amount
+    has_segwit = True
+    if "type" in utxo and utxo['type'] == "P2PKH":
+        has_segwit = False
+
+    return utxo['txid'], utxo['vout'], input_amount, has_segwit

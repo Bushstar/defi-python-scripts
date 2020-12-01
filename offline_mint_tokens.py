@@ -20,17 +20,18 @@ if len(sys.argv) != 5:
          'private key (string): private key to sign transaction. Input MUST be from this key and\n'
          'be the owner of the token we are minting tokens for.\n\n'
          'input (string): UTXO for the collateral address, amount to spend in UTXO, change sent\n'
-         'to private key address, 0.0001 fee.\n'
-         'input example: \'[{"txid":"TXID","vout":0,"amount":"0.00000000"}]\'\n')
+         'to private key address, 0.0001 fee. Optional P2PKH or P2SH-P2WPKH to indicate input type,\n'
+         'the default type is P2SH-P2WPKH\n'
+         'input example: \'[{"txid":"TXID","vout":0,"amount":"0.00000000","type":"P2SH-P2WPKH"}]\'\n')
 
 # Get args from user
 tokenID = user_token_id()
 amount = user_amount()
 privateKey = user_private_key()
-txid, vout, inputAmount = user_utxo()
+txid, vout, inputAmount, has_segwit = user_utxo()
 
 # Create mint tokens payload
 outputTokenPayload = "146a12446654784d01" + tokenID + amount
 
 # Create and print signed raw transaction
-print("Signed TX:", make_signed_transaction(privateKey, txid, vout, inputAmount, outputTokenPayload))
+print("\nSigned TX:", make_signed_transaction(privateKey, txid, vout, inputAmount, outputTokenPayload, has_segwit))

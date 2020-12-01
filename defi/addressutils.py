@@ -79,6 +79,18 @@ def scriptpubkey_from_address(addr):
     return defi.transactions.OutputScript.P2PKH(hash160_from_address(addr).decode()).content
 
 
+def scriptkey_from_private_segwit(privateKey):
+    sk = signing_key(privateKey)
+    vk = sk.get_verifying_key()
+    pk = private_to_public_key(vk)
+
+    pubkey_hash160 = hash160_public(pk)
+    redeem_script = defi.transactions.OutputScript.P2WPKH(pubkey_hash160)
+    build_p2sh_data = hexlify(defi.addressutils.hash160(redeem_script.content)).decode('utf-8')
+
+    return defi.transactions.OutputScript.P2SH(build_p2sh_data).content
+
+
 def scriptkey_from_private(privateKey):
     sk = signing_key(privateKey)
     vk = sk.get_verifying_key()

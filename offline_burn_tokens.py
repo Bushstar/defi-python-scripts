@@ -22,14 +22,14 @@ if len(sys.argv) < 5 or len(sys.argv) > 6:
          'be the owner of tokens to burn.\n\n'
          'input (string): UTXO for the token owner address, amount to spend in UTXO, change sent\n'
          'to private key address, 0.0001 fee.\n'
-         'input example: \'[{"txid":"TXID","vout":0,"amount":"0.00000000"}]\'\\nn'
+         'input example: \'[{"txid":"TXID","vout":0,"amount":"0.00000000","type":"P2SH-P2WPKH"}]\'\n'
          'burn address: (options) Set designed burn address 8F to 8d, defaults to "8addressToBurn"\n')
 
 # Get args from user
 tokenID = user_token_id()
 amount = user_amount()
 privateKey = user_private_key()
-txid, vout, inputAmount = user_utxo()
+txid, vout, inputAmount, has_segwit = user_utxo()
 
 # Get burn address
 if len(sys.argv) == 6:
@@ -37,10 +37,19 @@ if len(sys.argv) == 6:
 else:
     burnAddress = get_burn_address("")
 
+if has_segwit:
+    outputTokenPayload = "476a45"
+    script_key = "17" + scriptkey_from_private_segwit(privateKey)
+else:
+    outputTokenPayload = "496a47"
+    script_key = "19" + scriptkey_from_private(privateKey)
+
 # Create burn tokens payload
-outputTokenPayload = "496a47446654784219" + scriptkey_from_private(privateKey) + "0119" + \
+outputTokenPayload += "4466547842" + script_key + "0119" + \
                      scriptpubkey_from_address(burnAddress) + "01" + tokenID + amount
 
+print("payload", outputTokenPayload)
+
 # Print generated burn address and create and print signed raw transaction
-print("Burn Address:", burnAddress)
-print("Signed TX:", make_signed_transaction(privateKey, txid, vout, inputAmount, outputTokenPayload))
+print("\nBurn Address:", burnAddress)
+print("\nSigned TX:", make_signed_transaction(privateKey, txid, vout, inputAmount, outputTokenPayload, has_segwit))
